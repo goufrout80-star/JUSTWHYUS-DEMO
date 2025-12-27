@@ -16,7 +16,7 @@ const workItems = caseStudies.slice(0, 6).map(cs => ({
   title: cs.title,
   client: cs.client,
   category: cs.category,
-  metric: cs.metrics?.[0]?.value,
+  metric: cs.impact?.[0]?.value,
 }));
 
 export default function Home() {
