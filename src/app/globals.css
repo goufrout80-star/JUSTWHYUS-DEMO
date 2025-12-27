@@ -1,0 +1,504 @@
+@import "tailwindcss";
+
+:root {
+  /* Spacing Scale (8pt grid + 4px micro) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 40px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 80px;
+  --space-10: 96px;
+  --space-11: 120px;
+  --space-12: 160px;
+  --space-13: 200px;
+
+  /* Layout */
+  --container-max: 1200px;
+  --grid-gutter: 24px;
+  --page-padding: 96px;
+  --section-py: 120px;
+  --section-py-hero: 160px;
+
+  /* PIXEL RADII - Hard edges only */
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --radius-card: 0px;
+  --radius-panel: 0px;
+  --radius-pill: 0px;
+
+  /* Borders */
+  --border-default: 1px;
+  --border-focus: 2px;
+
+  /* Shadows - Pixel style (no blur, hard offset) */
+  --shadow-soft: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  --shadow-deep: 4px 4px 0px rgba(0, 0, 0, 0.4);
+
+  /* No blur for pixel aesthetic */
+  --blur-sm: 0px;
+  --blur-md: 0px;
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 500ms;
+  --ease: steps(4, end);
+
+  /* PIXEL Typography - smaller for pixel font readability */
+  --text-body: 14px;
+  --leading-body: 24px;
+  --text-small: 10px;
+  --leading-small: 16px;
+  --text-h3: 16px;
+  --leading-h3: 24px;
+  --text-h2: 20px;
+  --leading-h2: 28px;
+  --text-h1: 24px;
+  --leading-h1: 32px;
+  --text-hero: 32px;
+  --leading-hero: 40px;
+  --prose-max: 680px;
+
+  /* Button sizes */
+  --btn-sm: 32px;
+  --btn-md: 40px;
+  --btn-lg: 48px;
+
+  /* Pixel Cursor */
+  --cursor-size: 8px;
+  --cursor-size-hover: 12px;
+
+  /* Interactive Grid */
+  --mx: 0.5;
+  --my: 0.5;
+}
+
+/* Dark theme (default) */
+html, html[data-theme="dark"] {
+  --jwus-bg: #0a0a0a;
+  --jwus-surface: #141414;
+  --jwus-surface-hover: #1f1f1f;
+  --jwus-ink: #fafafa;
+  --jwus-deep: #a1a1aa;
+  --jwus-muted: #71717a;
+  --jwus-accent: #4ade80;
+  --jwus-accent-hover: #22c55e;
+  --jwus-border: #27272a;
+  --jwus-border-hover: #3f3f46;
+  --jwus-focus: #4ade80;
+  --jwus-error: #f87171;
+  --jwus-success: #4ade80;
+  --shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+  --shadow-deep: 0 12px 48px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* Light theme */
+html[data-theme="light"] {
+  --jwus-bg: #fafafa;
+  --jwus-surface: #ffffff;
+  --jwus-surface-hover: #f4f4f5;
+  --jwus-ink: #0a0a0a;
+  --jwus-deep: #71717a;
+  --jwus-muted: #a1a1aa;
+  --jwus-accent: #059669;
+  --jwus-accent-hover: #047857;
+  --jwus-border: #e4e4e7;
+  --jwus-border-hover: #d4d4d8;
+  --jwus-focus: #059669;
+  --jwus-error: #dc2626;
+  --jwus-success: #16a34a;
+  --shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
+  --shadow-deep: 0 12px 48px -12px rgba(0, 0, 0, 0.16);
+}
+
+@theme inline {
+  --color-background: var(--jwus-bg);
+  --color-foreground: var(--jwus-ink);
+  --color-surface: var(--jwus-surface);
+  --color-deep: var(--jwus-deep);
+  --color-accent: var(--jwus-accent);
+  --font-pixel: var(--font-pixel);
+
+  /* Spacing utilities */
+  --spacing-0: var(--space-0);
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-7: var(--space-7);
+  --spacing-8: var(--space-8);
+  --spacing-9: var(--space-9);
+  --spacing-10: var(--space-10);
+  --spacing-11: var(--space-11);
+  --spacing-12: var(--space-12);
+  --spacing-13: var(--space-13);
+
+  /* PIXEL Radii - no rounding */
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --radius-card: 0px;
+  --radius-panel: 0px;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  :root {
+    --page-padding: 40px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  :root {
+    --page-padding: 24px;
+    --section-py: 64px;
+    --section-py-hero: 88px;
+    --text-hero: 40px;
+    --leading-hero: 48px;
+    --text-h1: 36px;
+    --leading-h1: 44px;
+    --text-h2: 28px;
+    --leading-h2: 36px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--jwus-bg);
+  color: var(--jwus-ink);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  /* PIXEL FONT - no smoothing for crisp pixels */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  font-smooth: never;
+  text-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+}
+
+/* Pixel font class */
+.font-pixel {
+  font-family: var(--font-pixel), monospace;
+}
+
+::selection {
+  background: var(--jwus-accent);
+  color: var(--jwus-bg);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: var(--border-focus) solid var(--jwus-accent);
+  outline-offset: 2px;
+}
+
+/* Typography utilities */
+.text-hero {
+  font-size: var(--text-hero);
+  line-height: var(--leading-hero);
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.text-h1 {
+  font-size: var(--text-h1);
+  line-height: var(--leading-h1);
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.text-h2 {
+  font-size: var(--text-h2);
+  line-height: var(--leading-h2);
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+.text-h3 {
+  font-size: var(--text-h3);
+  line-height: var(--leading-h3);
+  font-weight: 500;
+}
+
+.text-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+
+.text-small {
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.text-deep {
+  color: var(--jwus-deep);
+}
+
+.text-accent {
+  color: var(--jwus-accent);
+}
+
+/* Prose max width */
+.prose-max {
+  max-width: var(--prose-max);
+}
+
+/* ========================================
+   INTERACTIVE GRID BACKGROUND
+   ======================================== */
+.interactive-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* Grid pattern */
+  background-image: 
+    linear-gradient(to right, var(--jwus-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--jwus-border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.06;
+  /* Parallax transform based on mouse position */
+  transform: translate(
+    calc((var(--mx) - 0.5) * 16px),
+    calc((var(--my) - 0.5) * 16px)
+  );
+  transition: transform 0.3s ease-out;
+}
+
+.scanner-light {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--jwus-accent) 0%,
+    transparent 70%
+  );
+  opacity: 0.03;
+  pointer-events: none;
+  left: calc(var(--mx) * 100% - 200px);
+  top: calc(var(--my) * 100% - 200px);
+  transition: left 0.15s ease-out, top 0.15s ease-out;
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  animation: scanline-scroll 8s linear infinite;
+}
+
+@keyframes scanline-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(48px); }
+}
+
+/* ========================================
+   PIXEL CURSOR SYSTEM
+   ======================================== */
+.pixel-cursor {
+  position: fixed;
+  width: var(--cursor-size);
+  height: var(--cursor-size);
+  background: var(--jwus-accent);
+  pointer-events: none;
+  z-index: 9999;
+  /* Pixel crosshair shape */
+  clip-path: polygon(
+    40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%
+  );
+  transition: width var(--dur-fast) var(--ease), height var(--dur-fast) var(--ease);
+}
+
+.pixel-cursor.hovering {
+  width: var(--cursor-size-hover);
+  height: var(--cursor-size-hover);
+  clip-path: none;
+  /* Square on hover */
+}
+
+.pixel-cursor-label {
+  position: fixed;
+  background: var(--jwus-surface);
+  border: 1px solid var(--jwus-accent);
+  color: var(--jwus-accent);
+  font-size: 8px;
+  padding: 2px 4px;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+/* ========================================
+   PIXEL CARD STYLES
+   ======================================== */
+.pixel-card {
+  position: relative;
+  background: var(--jwus-surface);
+  border: 1px solid var(--jwus-border);
+  transition: transform var(--dur-fast), border-color var(--dur-fast);
+}
+
+.pixel-card:hover {
+  transform: translate(-1px, -1px);
+  border-color: var(--jwus-accent);
+}
+
+/* Corner marks for cards */
+.pixel-card::before,
+.pixel-card::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--jwus-accent);
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+}
+
+.pixel-card::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.pixel-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+.pixel-card:hover::before,
+.pixel-card:hover::after {
+  opacity: 1;
+}
+
+/* ========================================
+   PIXEL BUTTON STYLES
+   ======================================== */
+.pixel-btn {
+  position: relative;
+  border: 1px solid currentColor;
+  background: transparent;
+  font-family: var(--font-pixel), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.pixel-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0 currentColor;
+}
+
+.pixel-btn:active {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+
+.pixel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ========================================
+   PIXEL INPUT STYLES
+   ======================================== */
+.pixel-input {
+  background: var(--jwus-bg);
+  border: 1px solid var(--jwus-border);
+  color: var(--jwus-ink);
+  font-family: var(--font-pixel), monospace;
+  transition: border-color var(--dur-fast);
+}
+
+.pixel-input:focus {
+  border-color: var(--jwus-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--jwus-accent);
+}
+
+.pixel-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pixel-input.error {
+  border-color: var(--jwus-error);
+}
+
+/* ========================================
+   SECTION DIVIDERS
+   ======================================== */
+.pixel-divider {
+  border: none;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--jwus-border) 0px,
+    var(--jwus-border) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+/* ========================================
+   DISABLE SMOOTH CURSORS ON DESKTOP
+   ======================================== */
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  * {
+    cursor: auto !important;
+  }
+  
+  .pixel-cursor,
+  .pixel-cursor-label {
+    display: none !important;
+  }
+}
