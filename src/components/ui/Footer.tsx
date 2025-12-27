@@ -55,33 +55,49 @@ function GlitchLogo() {
 }
 
 function MatrixRain() {
-  const columns = 20;
-  const [drops, setDrops] = useState<number[]>([]);
-
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
-    setDrops(Array(columns).fill(0).map(() => Math.random() * -20));
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDrops(prev => prev.map(drop => drop > 15 ? Math.random() * -10 : drop + 0.5));
-    }, 100);
-    return () => clearInterval(interval);
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const columns = 12;
+    const drops: number[] = Array(columns).fill(0).map(() => Math.random() * -20);
+    const chars = container.children;
+    
+    let rafId: number;
+    let lastTime = 0;
+    const fps = 10; // Limit to 10fps for this effect
+    const interval = 1000 / fps;
+    
+    const animate = (time: number) => {
+      if (time - lastTime >= interval) {
+        for (let i = 0; i < columns; i++) {
+          drops[i] = drops[i] > 15 ? Math.random() * -10 : drops[i] + 0.5;
+          const el = chars[i] as HTMLElement;
+          if (el) {
+            el.style.transform = `translate3d(0, ${drops[i] * 6}vh, 0)`;
+            el.textContent = Math.random() > 0.5 ? '1' : '0';
+          }
+        }
+        lastTime = time;
+      }
+      rafId = requestAnimationFrame(animate);
+    };
+    
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.15]">
-      {drops.map((drop, i) => (
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.1]">
+      {Array(12).fill(0).map((_, i) => (
         <div
           key={i}
-          className="absolute text-[var(--jwus-accent)] text-[10px] font-mono"
-          style={{
-            left: `${(i / columns) * 100}%`,
-            top: `${drop * 6}%`,
-            textShadow: '0 0 8px var(--jwus-accent)',
-          }}
+          className="absolute text-[var(--jwus-accent)] text-[10px] font-mono will-change-transform"
+          style={{ left: `${(i / 12) * 100}%` }}
         >
-          {Math.random() > 0.5 ? '1' : '0'}
+          0
         </div>
       ))}
     </div>
@@ -89,27 +105,44 @@ function MatrixRain() {
 }
 
 function PixelWave() {
-  const [offset, setOffset] = useState(0);
-
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
-    const interval = setInterval(() => {
-      setOffset(prev => (prev + 1) % 100);
-    }, 100);
-    return () => clearInterval(interval);
+    const container = containerRef.current;
+    if (!container) return;
+    
+    let offset = 0;
+    let rafId: number;
+    let lastTime = 0;
+    const fps = 15;
+    const interval = 1000 / fps;
+    const bars = container.children;
+    
+    const animate = (time: number) => {
+      if (time - lastTime >= interval) {
+        offset = (offset + 1) % 100;
+        container.style.transform = `translate3d(-${offset}px, 0, 0)`;
+        lastTime = time;
+      }
+      rafId = requestAnimationFrame(animate);
+    };
+    
+    // Pre-calculate static heights
+    for (let i = 0; i < bars.length; i++) {
+      const el = bars[i] as HTMLElement;
+      el.style.height = `${Math.sin(i * 0.2) * 10 + 15}px`;
+      el.style.opacity = `${0.1 + Math.sin(i * 0.1) * 0.1}`;
+    }
+    
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   return (
     <div className="absolute bottom-0 left-0 right-0 h-[40px] overflow-hidden pointer-events-none">
-      <div className="flex gap-[2px]" style={{ transform: `translateX(-${offset}px)` }}>
-        {Array(100).fill(0).map((_, i) => (
-          <div
-            key={i}
-            className="w-[4px] bg-[var(--jwus-accent)]"
-            style={{
-              height: `${Math.sin((i + offset) * 0.2) * 10 + 15}px`,
-              opacity: 0.1 + Math.sin((i + offset) * 0.1) * 0.1,
-            }}
-          />
+      <div ref={containerRef} className="flex gap-[2px] will-change-transform">
+        {Array(50).fill(0).map((_, i) => (
+          <div key={i} className="w-[4px] bg-[var(--jwus-accent)]" />
         ))}
       </div>
     </div>

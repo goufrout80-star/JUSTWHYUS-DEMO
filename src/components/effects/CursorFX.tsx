@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 const CURSOR_SIZE = 8;
 const CURSOR_SIZE_HOVER = 12;
@@ -8,17 +8,50 @@ const CURSOR_SIZE_HOVER = 12;
 export function CursorFX() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const [hoverLabel, setHoverLabel] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const posRef = useRef({ x: 0, y: 0 });
+  const stateRef = useRef({
+    x: 0,
+    y: 0,
+    isVisible: false,
+    isHovering: false,
+    label: '',
+  });
+  const rafRef = useRef<number>(0);
+  const isDesktopRef = useRef(false);
+
+  const updateCursor = useCallback(() => {
+    const cursor = cursorRef.current;
+    const label = labelRef.current;
+    const state = stateRef.current;
+
+    if (cursor) {
+      cursor.style.transform = `translate3d(${state.x}px, ${state.y}px, 0) translate(-50%, -50%)`;
+      cursor.style.opacity = state.isVisible ? '1' : '0';
+      cursor.style.width = `${state.isHovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE}px`;
+      cursor.style.height = `${state.isHovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE}px`;
+      cursor.style.clipPath = state.isHovering 
+        ? 'none' 
+        : 'polygon(40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%)';
+    }
+
+    if (label) {
+      label.style.transform = `translate3d(${state.x + 16}px, ${state.y + 16}px, 0)`;
+      label.style.opacity = state.isVisible && state.isHovering && state.label ? '1' : '0';
+      if (state.label) label.textContent = state.label;
+    }
+  }, []);
 
   useEffect(() => {
     const checkDesktop = () => {
       const isFinePointer = window.matchMedia('(pointer: fine)').matches;
       const noReducedMotion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      setIsDesktop(isFinePointer && noReducedMotion);
+      isDesktopRef.current = isFinePointer && noReducedMotion;
+      
+      if (cursorRef.current) {
+        cursorRef.current.style.display = isDesktopRef.current ? 'block' : 'none';
+      }
+      if (labelRef.current) {
+        labelRef.current.style.display = isDesktopRef.current ? 'block' : 'none';
+      }
     };
     
     checkDesktop();
@@ -27,96 +60,90 @@ export function CursorFX() {
   }, []);
 
   useEffect(() => {
-    if (!isDesktop || !cursorRef.current) return;
-
-    const cursor = cursorRef.current;
-    const label = labelRef.current;
+    let ticking = false;
 
     const onMouseMove = (e: MouseEvent) => {
-      setIsVisible(true);
-      posRef.current = { x: e.clientX, y: e.clientY };
-      
-      // Direct position update for pixel-perfect movement
-      cursor.style.left = `${e.clientX}px`;
-      cursor.style.top = `${e.clientY}px`;
-      
-      if (label) {
-        label.style.left = `${e.clientX + 16}px`;
-        label.style.top = `${e.clientY + 16}px`;
+      stateRef.current.x = e.clientX;
+      stateRef.current.y = e.clientY;
+      stateRef.current.isVisible = true;
+
+      if (!ticking) {
+        rafRef.current = requestAnimationFrame(() => {
+          updateCursor();
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    const onMouseLeave = () => setIsVisible(false);
-    const onMouseEnter = () => setIsVisible(true);
+    const onMouseLeave = () => {
+      stateRef.current.isVisible = false;
+      updateCursor();
+    };
+
+    const onMouseEnter = () => {
+      stateRef.current.isVisible = true;
+      updateCursor();
+    };
 
     const onMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const interactive = target.closest('a, button, [role="button"], input, textarea, select, [data-cursor-hover]');
-      setIsHovering(!!interactive);
+      stateRef.current.isHovering = !!interactive;
       
-      // Get label from data attribute or element text
       if (interactive) {
         const customLabel = interactive.getAttribute('data-cursor-label');
         const tagName = interactive.tagName.toLowerCase();
         if (customLabel) {
-          setHoverLabel(customLabel);
+          stateRef.current.label = customLabel;
         } else if (tagName === 'a') {
-          setHoverLabel('LINK');
+          stateRef.current.label = 'LINK';
         } else if (tagName === 'button' || interactive.getAttribute('role') === 'button') {
-          setHoverLabel('CLICK');
+          stateRef.current.label = 'CLICK';
         } else if (tagName === 'input' || tagName === 'textarea') {
-          setHoverLabel('TYPE');
+          stateRef.current.label = 'TYPE';
         } else {
-          setHoverLabel('SELECT');
+          stateRef.current.label = 'SELECT';
         }
       } else {
-        setHoverLabel(null);
+        stateRef.current.label = '';
       }
     };
 
-    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mousemove', onMouseMove, { passive: true });
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
-    document.addEventListener('mouseover', onMouseOver);
+    document.addEventListener('mouseover', onMouseOver, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
       document.removeEventListener('mouseover', onMouseOver);
+      cancelAnimationFrame(rafRef.current);
     };
-  }, [isDesktop]);
-
-  if (!isDesktop) return null;
+  }, [updateCursor]);
 
   return (
     <>
-      {/* Pixel Crosshair Cursor */}
       <div
         ref={cursorRef}
         className="pixel-cursor"
-        style={{
-          width: isHovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE,
-          height: isHovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE,
-          opacity: isVisible ? 1 : 0,
-          clipPath: isHovering ? 'none' : 'polygon(40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%)',
-          transform: 'translate(-50%, -50%)',
+        style={{ 
+          willChange: 'transform, opacity',
+          contain: 'layout style',
         }}
         aria-hidden="true"
       />
-      {/* Hover Label */}
-      {hoverLabel && (
-        <div
-          ref={labelRef}
-          className="pixel-cursor-label"
-          style={{
-            opacity: isVisible && isHovering ? 1 : 0,
-          }}
-          aria-hidden="true"
-        >
-          {hoverLabel}
-        </div>
-      )}
+      <div
+        ref={labelRef}
+        className="pixel-cursor-label"
+        style={{ 
+          willChange: 'transform, opacity',
+          contain: 'layout style',
+        }}
+        aria-hidden="true"
+      />
     </>
   );
 }
