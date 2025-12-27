@@ -1,50 +1,15 @@
 import Link from 'next/link';
 import { Container, Section, Grid } from '@/components/layout';
-import { ScrollReveal, AmbientGlow } from '@/components/effects';
+import { ScrollReveal, AmbientGlow, PixelHero } from '@/components/effects';
 import { Button, CaseCard, MetricCard, AssetCard } from '@/components/ui';
-import { PixelSceneClient } from '@/components/three/PixelSceneClient';
 import { caseStudies } from '@/data/case-studies';
 import { assets } from '@/data/assets';
 
 export default function Home() {
   return (
     <>
-      {/* HERO */}
-      <Section variant="hero" className="relative overflow-hidden">
-        <AmbientGlow className="top-1/4 -right-1/4" size="lg" />
-        <Container className="relative z-10">
-          <div className="grid lg:grid-cols-2 gap-[64px] items-center min-h-[70vh]">
-            <div className="max-w-[600px]">
-              <ScrollReveal>
-                <h1 className="text-hero text-[var(--jwus-ink)] mb-[32px]">
-                  Quiet Power Partner Behind Brands
-                </h1>
-              </ScrollReveal>
-              
-              <ScrollReveal delay={0.1}>
-                <p className="text-body text-[var(--jwus-deep)] max-w-[680px] mb-[48px]">
-                  Strategic positioning, identity systems, and growth infrastructure for brands that prefer proof over noise.
-                </p>
-              </ScrollReveal>
-              
-              <ScrollReveal delay={0.2}>
-                <div className="flex flex-wrap gap-[16px]">
-                  <Link href="/contact">
-                    <Button variant="primary" size="lg">Request a Private Consult</Button>
-                  </Link>
-                  <Link href="/case-studies">
-                    <Button variant="ghost" size="lg">View Case Studies</Button>
-                  </Link>
-                </div>
-              </ScrollReveal>
-            </div>
-            
-            <div className="relative h-[400px] lg:h-[500px] hidden md:block">
-              <PixelSceneClient className="absolute inset-0" />
-            </div>
-          </div>
-        </Container>
-      </Section>
+      {/* PIXEL HERO */}
+      <PixelHero />
 
       {/* PROOF STRIP */}
       <Section className="border-y border-white/5 bg-[var(--jwus-surface)]">

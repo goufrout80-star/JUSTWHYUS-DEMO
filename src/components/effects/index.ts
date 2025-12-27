@@ -9,3 +9,4 @@ export { ClipSection } from './ClipSection';
 export { CaseCardLensHover } from './CaseCardLensHover';
 export { SlowMarquee } from './SlowMarquee';
 export { InteractiveGrid } from './InteractiveGrid';
+export { PixelHero } from './PixelHero';
