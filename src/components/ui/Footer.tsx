@@ -48,7 +48,10 @@ function GlitchLogo() {
   }, [isGlitching]);
 
   return (
-    <pre className="text-[6px] sm:text-[8px] md:text-[10px] leading-none text-[var(--jwus-accent)] font-mono select-none">
+    <pre 
+      className="text-[6px] sm:text-[8px] md:text-[10px] leading-none text-[var(--jwus-accent)] font-mono select-none"
+      style={{ minHeight: '60px', minWidth: '200px' }}
+    >
       {display}
     </pre>
   );
@@ -191,7 +194,7 @@ function TypewriterText({ text, delay = 0 }: { text: string; delay?: number }) {
   }, [displayed, text, started]);
 
   return (
-    <span>
+    <span className="inline-block" style={{ minHeight: '1.2em' }}>
       {displayed}
       {displayed.length < text.length && (
         <span className="inline-block w-[6px] h-[12px] bg-[var(--jwus-accent)] animate-pulse ml-[2px]" />
@@ -205,10 +208,11 @@ function NavLink({ href, children, index }: { href: string; children: React.Reac
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
+      style={{ minHeight: '36px' }}
     >
       <Link 
         href={href}
@@ -216,14 +220,13 @@ function NavLink({ href, children, index }: { href: string; children: React.Reac
         onMouseLeave={() => setIsHovered(false)}
         className="group flex items-center gap-[12px] py-[8px] text-[var(--jwus-deep)] hover:text-[var(--jwus-accent)] transition-colors"
       >
-        <span className="text-[var(--jwus-accent)] text-[10px] font-mono opacity-50 group-hover:opacity-100">
+        <span className="text-[var(--jwus-accent)] text-[10px] font-mono opacity-50 group-hover:opacity-100 w-[10px]">
           {isHovered ? '>' : '$'}
         </span>
         <span className="text-[12px] uppercase tracking-wider">{children}</span>
-        <motion.span
-          initial={{ width: 0 }}
-          animate={{ width: isHovered ? 40 : 0 }}
-          className="h-[1px] bg-[var(--jwus-accent)]"
+        <span
+          className="h-[1px] bg-[var(--jwus-accent)] transition-all duration-200"
+          style={{ width: isHovered ? 40 : 0 }}
         />
       </Link>
     </motion.div>
@@ -267,16 +270,15 @@ export function Footer() {
     target: footerRef,
     offset: ['start end', 'end end']
   });
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
-  const y = useTransform(scrollYProgress, [0, 0.5], [50, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3], [0.5, 1]);
 
   return (
     <footer ref={footerRef} className="relative bg-[var(--jwus-bg)] border-t border-[var(--jwus-border)] overflow-hidden">
       <MatrixRain />
       <PixelWave />
       
-      {/* Main content */}
-      <motion.div style={{ opacity, y }} className="relative z-10">
+      {/* Main content - removed y transform to prevent CLS */}
+      <motion.div style={{ opacity }} className="relative z-10">
         {/* Top section with ASCII logo */}
         <div className="max-w-[1200px] mx-auto px-[24px] pt-[64px] pb-[48px]">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-[48px] items-start">

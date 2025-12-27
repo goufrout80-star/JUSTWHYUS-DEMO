@@ -112,13 +112,14 @@ function TypeWriter({ words }: { words: string[] }) {
 
   const currentWord = words[wordIndex].slice(0, charIndex);
 
+  // Find longest word to reserve space and prevent CLS
+  const maxLength = Math.max(...words.map(w => w.length));
+
   return (
-    <span className="text-[var(--jwus-accent)]">
+    <span className="text-[var(--jwus-accent)] inline-block" style={{ minWidth: `${maxLength}ch` }}>
       <GlitchText text={currentWord} isGlitching={isGlitching} />
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.5, repeat: Infinity }}
-        className="inline-block w-[3px] h-[1em] bg-[var(--jwus-accent)] ml-[2px] align-middle"
+      <span
+        className="inline-block w-[3px] h-[1em] bg-[var(--jwus-accent)] ml-[2px] align-middle animate-pulse"
       />
     </span>
   );
