@@ -1,43 +1,10 @@
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { Container, Section } from '@/components/layout';
 import { Button } from '@/components/ui';
+import { PixelHero, AnimatedMetrics, AnimatedWorkSection, AnimatedAssets } from '@/components/effects';
 import { caseStudies } from '@/data/case-studies';
 import { assets } from '@/data/assets';
-
-// Lazy load heavy animated components below the fold
-const PixelHero = dynamic(() => import('@/components/effects/PixelHero').then(mod => mod.PixelHero), {
-  ssr: true,
-  loading: () => (
-    <div className="min-h-[100vh] flex items-center justify-center bg-[var(--jwus-bg)]">
-      <div className="text-center px-[24px]">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--jwus-deep)] mb-[16px]">
-          [ INITIALIZING BRAND PROTOCOL ]
-        </p>
-        <h1 className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]">
-          <span className="block">QUIET POWER</span>
-          <span className="block">PARTNER FOR</span>
-          <span className="block text-[var(--jwus-accent)]">BRANDS</span>
-        </h1>
-      </div>
-    </div>
-  ),
-});
-
-const AnimatedMetrics = dynamic(
-  () => import('@/components/effects/AnimatedMetrics').then(mod => mod.AnimatedMetrics),
-  { ssr: false, loading: () => <div className="h-[200px]" /> }
-);
-
-const AnimatedWorkSection = dynamic(
-  () => import('@/components/effects/AnimatedWorkSection').then(mod => mod.AnimatedWorkSection),
-  { ssr: false, loading: () => <div className="h-[600px]" /> }
-);
-
-const AnimatedAssets = dynamic(
-  () => import('@/components/effects/AnimatedAssets').then(mod => mod.AnimatedAssets),
-  { ssr: false, loading: () => <div className="h-[400px]" /> }
-);
 
 const metrics = [
   { value: '$2.4B+', label: 'Client Revenue Influenced' },
