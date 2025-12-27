@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Container, Section, Grid } from '@/components/layout';
-import { ScrollReveal, AmbientGlow, PixelHero, AnimatedMetrics, AnimatedWorkSection } from '@/components/effects';
-import { Button, AssetCard } from '@/components/ui';
+import { ScrollReveal, AmbientGlow, PixelHero, AnimatedMetrics, AnimatedWorkSection, AnimatedAssets } from '@/components/effects';
+import { Button } from '@/components/ui';
 import { caseStudies } from '@/data/case-studies';
 import { assets } from '@/data/assets';
 
@@ -35,23 +35,8 @@ export default function Home() {
       {/* ANIMATED WORK SECTION */}
       <AnimatedWorkSection works={workItems} />
 
-      {/* ASSETS */}
-      <Section className="bg-[var(--jwus-surface)]">
-        <Container>
-          <ScrollReveal>
-            <div className="mb-[var(--space-9)]">
-              <span className="text-small text-[var(--jwus-accent)] mb-[var(--space-2)] block">Owned Assets</span>
-              <h2 className="text-h1 text-[var(--jwus-ink)]">Proprietary Frameworks</h2>
-            </div>
-          </ScrollReveal>
-          
-          <Grid cols={2}>
-            {assets.map((asset, i) => (
-              <AssetCard key={asset.slug} asset={asset} index={i} />
-            ))}
-          </Grid>
-        </Container>
-      </Section>
+      {/* ANIMATED ASSETS */}
+      <AnimatedAssets assets={assets} />
 
       {/* CLOSING CTA */}
       <Section variant="closing" className="relative overflow-hidden">
