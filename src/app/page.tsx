@@ -1,9 +1,23 @@
 import Link from 'next/link';
 import { Container, Section, Grid } from '@/components/layout';
-import { ScrollReveal, AmbientGlow, PixelHero } from '@/components/effects';
-import { Button, CaseCard, MetricCard, AssetCard } from '@/components/ui';
+import { ScrollReveal, AmbientGlow, PixelHero, AnimatedMetrics, AnimatedWorkSection } from '@/components/effects';
+import { Button, AssetCard } from '@/components/ui';
 import { caseStudies } from '@/data/case-studies';
 import { assets } from '@/data/assets';
+
+const metrics = [
+  { value: '$2.4B+', label: 'Client Revenue Influenced' },
+  { value: '340%', label: 'Average Growth Rate' },
+  { value: '94%', label: 'Client Retention' },
+];
+
+const workItems = caseStudies.slice(0, 6).map(cs => ({
+  slug: cs.slug,
+  title: cs.title,
+  client: cs.client,
+  category: cs.category,
+  metric: cs.metrics?.[0]?.value,
+}));
 
 export default function Home() {
   return (
@@ -11,39 +25,15 @@ export default function Home() {
       {/* PIXEL HERO */}
       <PixelHero />
 
-      {/* PROOF STRIP */}
-      <Section className="border-y border-white/5 bg-[var(--jwus-surface)]">
-        <Container>
-          <Grid cols={3} className="py-[var(--space-4)]">
-            <MetricCard value="$2.4B+" label="Client Revenue Influenced" index={0} />
-            <MetricCard value="340%" label="Average Growth Rate" index={1} />
-            <MetricCard value="94%" label="Client Retention" index={2} />
-          </Grid>
-        </Container>
-      </Section>
+      {/* ANIMATED METRICS */}
+      <section className="py-[64px] border-y border-[var(--jwus-border)]/20 bg-[var(--jwus-surface)]">
+        <div className="max-w-[1200px] mx-auto px-[24px]">
+          <AnimatedMetrics metrics={metrics} />
+        </div>
+      </section>
 
-      {/* SELECTED WORK */}
-      <Section>
-        <Container>
-          <ScrollReveal>
-            <div className="flex justify-between items-end mb-[80px]">
-              <div>
-                <span className="text-small text-[var(--jwus-accent)] mb-[8px] block">Selected Work</span>
-                <h2 className="text-h1 text-[var(--jwus-ink)]">Proof Over Promise</h2>
-              </div>
-              <Link href="/case-studies">
-                <Button variant="ghost">View All</Button>
-              </Link>
-            </div>
-          </ScrollReveal>
-          
-          <Grid cols={2}>
-            {caseStudies.slice(0, 6).map((cs, i) => (
-              <CaseCard key={cs.slug} caseStudy={cs} index={i} />
-            ))}
-          </Grid>
-        </Container>
-      </Section>
+      {/* ANIMATED WORK SECTION */}
+      <AnimatedWorkSection works={workItems} />
 
       {/* ASSETS */}
       <Section className="bg-[var(--jwus-surface)]">

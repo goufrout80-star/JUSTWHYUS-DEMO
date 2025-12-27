@@ -10,3 +10,5 @@ export { CaseCardLensHover } from './CaseCardLensHover';
 export { SlowMarquee } from './SlowMarquee';
 export { InteractiveGrid } from './InteractiveGrid';
 export { PixelHero } from './PixelHero';
+export { AnimatedMetrics } from './AnimatedMetrics';
+export { AnimatedWorkSection } from './AnimatedWorkSection';
