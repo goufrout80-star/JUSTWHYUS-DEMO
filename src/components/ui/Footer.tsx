@@ -27,9 +27,6 @@ export function Footer() {
             <Link href="/contact" className="text-[var(--jwus-deep)] hover:text-[var(--jwus-ink)] transition-colors duration-[var(--dur)]">
               Contact
             </Link>
-            <Link href="/design-system" className="text-[var(--jwus-deep)] hover:text-[var(--jwus-ink)] transition-colors duration-[var(--dur)]">
-              System
-            </Link>
           </div>
         </div>
 
