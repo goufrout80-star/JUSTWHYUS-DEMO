@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const WORDS = ['BRANDS', 'GROWTH', 'POWER', 'LEGACY'];
 const GLITCH_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?~`░▒▓█▀▄';
@@ -231,54 +231,34 @@ function StatusBar() {
 export function PixelHero() {
   return (
     <div className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
-      {/* Background elements - optimized CSS particles */}
+      {/* Background elements - lazy loaded, not blocking LCP */}
       <PixelParticles />
-      
       <ScanLine />
       <PixelBorder />
       <DataStream />
       
-      {/* Main content */}
+      {/* Main content - NO animation delays for LCP */}
       <div className="relative z-10 text-center px-[24px]">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--jwus-deep)] mb-[16px]">
-            [ INITIALIZING BRAND PROTOCOL ]
-          </p>
-        </motion.div>
+        {/* Static text for fast LCP - no motion wrapper */}
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--jwus-deep)] mb-[16px] animate-fade-in">
+          [ INITIALIZING BRAND PROTOCOL ]
+        </p>
 
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]"
-        >
+        {/* LCP element - render immediately, no motion delays */}
+        <h1 className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]">
           <span className="block">QUIET POWER</span>
           <span className="block">PARTNER FOR</span>
           <span className="block">
             <TypeWriter words={WORDS} />
           </span>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-[var(--jwus-deep)] text-[14px] max-w-[500px] mx-auto mb-[40px] leading-relaxed"
-        >
+        <p className="text-[var(--jwus-deep)] text-[14px] max-w-[500px] mx-auto mb-[40px] leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
           Strategic positioning & identity systems for brands that prefer{' '}
           <span className="text-[var(--jwus-accent)]">proof</span> over noise.
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="flex flex-wrap justify-center gap-[16px]"
-        >
+        <div className="flex flex-wrap justify-center gap-[16px] animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <a
             href="/contact"
             className="group relative px-[24px] py-[12px] bg-[var(--jwus-accent)] text-[var(--jwus-bg)] text-[12px] uppercase tracking-wider
@@ -286,7 +266,6 @@ export function PixelHero() {
                        transition-all duration-150"
           >
             <span className="relative z-10">REQUEST CONSULT</span>
-            <div className="absolute inset-0 bg-[var(--jwus-ink)] translate-x-[4px] translate-y-[4px] -z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
           </a>
           
           <a
@@ -297,27 +276,37 @@ export function PixelHero() {
           >
             VIEW WORK →
           </a>
-        </motion.div>
+        </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-[80px] left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="flex flex-col items-center gap-[8px] text-[var(--jwus-deep)]"
-          >
+        {/* Scroll indicator - CSS animation only */}
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <div className="flex flex-col items-center gap-[8px] text-[var(--jwus-deep)] animate-bounce-slow">
             <span className="text-[10px] uppercase tracking-widest">SCROLL</span>
             <div className="w-[1px] h-[24px] bg-gradient-to-b from-[var(--jwus-deep)] to-transparent" />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
 
       <StatusBar />
+      
+      {/* CSS animations instead of framer-motion */}
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(8px); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out forwards;
+          opacity: 0;
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 1.5s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
