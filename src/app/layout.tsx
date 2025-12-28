@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Silkscreen } from "next/font/google";
 import "./globals.css";
 import { Header, Footer } from "@/components/ui";
-import { CursorFX } from "@/components/effects";
+import { CursorFX, LoadingScreen } from "@/components/effects";
 import { NoiseOverlay } from "@/components/shapes";
 import { ThemeProvider } from "@/components/theme";
 import { InteractiveGrid } from "@/components/effects/InteractiveGrid";
@@ -33,6 +33,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${pixelFont.variable} font-pixel`}>
         <ThemeProvider>
+          <LoadingScreen />
           <InteractiveGrid />
           <NoiseOverlay />
           <CursorFX />

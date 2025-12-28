@@ -55,96 +55,56 @@ function GlitchLogo() {
 }
 
 function MatrixRain() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const columns = 12;
-    const drops: number[] = Array(columns).fill(0).map(() => Math.random() * -20);
-    const chars = container.children;
-    
-    let rafId: number;
-    let lastTime = 0;
-    const fps = 10; // Limit to 10fps for this effect
-    const interval = 1000 / fps;
-    
-    const animate = (time: number) => {
-      if (time - lastTime >= interval) {
-        for (let i = 0; i < columns; i++) {
-          drops[i] = drops[i] > 15 ? Math.random() * -10 : drops[i] + 0.5;
-          const el = chars[i] as HTMLElement;
-          if (el) {
-            el.style.transform = `translate3d(0, ${drops[i] * 6}vh, 0)`;
-            el.textContent = Math.random() > 0.5 ? '1' : '0';
-          }
-        }
-        lastTime = time;
-      }
-      rafId = requestAnimationFrame(animate);
-    };
-    
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, []);
-
+  // Pure CSS animation - no JS overhead
   return (
-    <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.1]">
-      {Array(12).fill(0).map((_, i) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.05]">
+      {Array(8).fill(0).map((_, i) => (
         <div
           key={i}
-          className="absolute text-[var(--jwus-accent)] text-[10px] font-mono will-change-transform"
-          style={{ left: `${(i / 12) * 100}%` }}
+          className="absolute text-[var(--jwus-accent)] text-[10px] font-mono"
+          style={{ 
+            left: `${(i / 8) * 100}%`,
+            animation: `matrix-fall ${3 + i * 0.5}s linear infinite`,
+            animationDelay: `${i * 0.3}s`,
+          }}
         >
-          0
+          {i % 2 === 0 ? '1' : '0'}
         </div>
       ))}
+      <style jsx>{`
+        @keyframes matrix-fall {
+          0% { transform: translateY(-20px); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
 
 function PixelWave() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    let offset = 0;
-    let rafId: number;
-    let lastTime = 0;
-    const fps = 15;
-    const interval = 1000 / fps;
-    const bars = container.children;
-    
-    const animate = (time: number) => {
-      if (time - lastTime >= interval) {
-        offset = (offset + 1) % 100;
-        container.style.transform = `translate3d(-${offset}px, 0, 0)`;
-        lastTime = time;
-      }
-      rafId = requestAnimationFrame(animate);
-    };
-    
-    // Pre-calculate static heights
-    for (let i = 0; i < bars.length; i++) {
-      const el = bars[i] as HTMLElement;
-      el.style.height = `${Math.sin(i * 0.2) * 10 + 15}px`;
-      el.style.opacity = `${0.1 + Math.sin(i * 0.1) * 0.1}`;
-    }
-    
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, []);
-
+  // Pure CSS animation - no JS overhead
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-[40px] overflow-hidden pointer-events-none">
-      <div ref={containerRef} className="flex gap-[2px] will-change-transform">
-        {Array(50).fill(0).map((_, i) => (
-          <div key={i} className="w-[4px] bg-[var(--jwus-accent)]" />
+    <div className="absolute bottom-0 left-0 right-0 h-[30px] overflow-hidden pointer-events-none opacity-[0.15]">
+      <div 
+        className="flex gap-[3px]"
+        style={{ animation: 'wave-scroll 8s linear infinite' }}
+      >
+        {Array(30).fill(0).map((_, i) => (
+          <div 
+            key={i} 
+            className="w-[4px] bg-[var(--jwus-accent)]" 
+            style={{ height: `${Math.sin(i * 0.3) * 8 + 12}px` }}
+          />
         ))}
       </div>
+      <style jsx>{`
+        @keyframes wave-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100px); }
+        }
+      `}</style>
     </div>
   );
 }

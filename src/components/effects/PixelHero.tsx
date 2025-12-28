@@ -160,42 +160,26 @@ function PixelBorder() {
 }
 
 function DataStream() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const lines = container.children;
-    let rafId: number;
-    let lastTime = 0;
-    const fps = 5; // Very slow update
-    const interval = 1000 / fps;
-    
-    const animate = (time: number) => {
-      if (time - lastTime >= interval) {
-        for (let i = 0; i < lines.length; i++) {
-          const el = lines[i] as HTMLElement;
-          let stream = '';
-          for (let j = 0; j < 8; j++) {
-            stream += Math.random() > 0.5 ? '1' : '0';
-          }
-          el.textContent = stream;
-        }
-        lastTime = time;
-      }
-      rafId = requestAnimationFrame(animate);
-    };
-    
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, []);
-
+  // Static data stream - no JS animation for performance
+  const streams = ['10110100', '01001011', '11010010', '00101101', '10010110', '01101001'];
+  
   return (
-    <div ref={containerRef} className="absolute right-[40px] top-1/2 -translate-y-1/2 flex flex-col gap-[4px] text-[10px] text-[var(--jwus-accent)]/30 font-mono hidden lg:flex">
-      {Array(6).fill(0).map((_, i) => (
-        <div key={i} className="tracking-widest">00000000</div>
+    <div className="absolute right-[40px] top-1/2 -translate-y-1/2 flex flex-col gap-[4px] text-[10px] text-[var(--jwus-accent)]/20 font-mono hidden lg:flex">
+      {streams.map((stream, i) => (
+        <div 
+          key={i} 
+          className="tracking-widest"
+          style={{ animation: `blink ${2 + i * 0.5}s ease-in-out infinite` }}
+        >
+          {stream}
+        </div>
       ))}
+      <style jsx>{`
+        @keyframes blink {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   );
 }

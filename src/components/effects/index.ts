@@ -13,3 +13,4 @@ export { PixelHero } from './PixelHero';
 export { AnimatedMetrics } from './AnimatedMetrics';
 export { AnimatedWorkSection } from './AnimatedWorkSection';
 export { AnimatedAssets } from './AnimatedAssets';
+export { LoadingScreen } from './LoadingScreen';
