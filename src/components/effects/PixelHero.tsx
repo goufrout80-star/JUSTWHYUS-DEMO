@@ -81,6 +81,9 @@ function TypeWriter({ words }: { words: string[] }) {
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
+  
+  // Find longest word for fixed width (prevents CLS)
+  const maxLength = Math.max(...words.map(w => w.length));
 
   useEffect(() => {
     const word = words[wordIndex];
@@ -113,7 +116,8 @@ function TypeWriter({ words }: { words: string[] }) {
   const currentWord = words[wordIndex].slice(0, charIndex);
 
   return (
-    <span className="text-[var(--jwus-accent)]">
+    // Fixed width container to prevent CLS from text width changes
+    <span className="inline-block" style={{ minWidth: `${maxLength}ch` }}>
       <GlitchText text={currentWord} isGlitching={isGlitching} />
       <motion.span
         animate={{ opacity: [1, 0] }}
@@ -255,18 +259,14 @@ export function PixelHero() {
           </p>
         </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]"
-        >
+        {/* LCP element - NO animation delay, render immediately */}
+        <h1 className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]">
           <span className="block">QUIET POWER</span>
           <span className="block">PARTNER FOR</span>
-          <span className="block">
+          <span className="block text-[var(--jwus-accent)]">
             <TypeWriter words={WORDS} />
           </span>
-        </motion.h1>
+        </h1>
 
         <motion.p
           initial={{ opacity: 0 }}

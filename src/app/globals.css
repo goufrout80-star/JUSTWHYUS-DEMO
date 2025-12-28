@@ -201,11 +201,23 @@ body {
   font-smooth: never;
   text-rendering: optimizeSpeed;
   image-rendering: pixelated;
+  /* Prevent CLS from scrollbar */
+  overflow-x: hidden;
+}
+
+/* CLS prevention - fixed dimensions for common elements */
+main {
+  contain: layout style;
+}
+
+section {
+  contain: layout;
 }
 
 /* Pixel font class */
 .font-pixel {
   font-family: var(--font-pixel), monospace;
+  font-synthesis: none;
 }
 
 ::selection {
