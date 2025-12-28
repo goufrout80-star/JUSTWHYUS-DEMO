@@ -6,45 +6,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 const WORDS = ['BRANDS', 'GROWTH', 'POWER', 'LEGACY'];
 const GLITCH_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?~`░▒▓█▀▄';
 
-// Reduced particles with CSS animations instead of framer-motion for performance
-function PixelParticles() {
-  const particlesRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const container = particlesRef.current;
-    if (!container) return;
-    
-    // Create particles with CSS animations
-    const particles = container.children;
-    for (let i = 0; i < particles.length; i++) {
-      const el = particles[i] as HTMLElement;
-      el.style.left = `${Math.random() * 100}%`;
-      el.style.top = `${Math.random() * 100}%`;
-      el.style.animationDelay = `${i * 0.3}s`;
-    }
-  }, []);
+function PixelParticle({ delay }: { delay: number }) {
+  const [pos] = useState({
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 2,
+    duration: Math.random() * 3 + 2,
+  });
 
   return (
-    <div ref={particlesRef} className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array(8).fill(0).map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-[4px] h-[4px] bg-[var(--jwus-accent)] animate-float-up"
-          style={{ opacity: 0 }}
-        />
-      ))}
-      <style jsx>{`
-        @keyframes float-up {
-          0% { opacity: 0; transform: translateY(0); }
-          20% { opacity: 0.6; }
-          80% { opacity: 0.6; }
-          100% { opacity: 0; transform: translateY(-60px); }
-        }
-        .animate-float-up {
-          animation: float-up 3s ease-out infinite;
-        }
-      `}</style>
-    </div>
+    <motion.div
+      className="absolute bg-[var(--jwus-accent)]"
+      style={{
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
+        width: pos.size,
+        height: pos.size,
+      }}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{
+        opacity: [0, 1, 1, 0],
+        scale: [0, 1, 1, 0],
+        y: [0, -20, -40, -60],
+      }}
+      transition={{
+        duration: pos.duration,
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 2,
+      }}
+    />
   );
 }
 
@@ -81,9 +72,6 @@ function TypeWriter({ words }: { words: string[] }) {
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
-  
-  // Find longest word for fixed width (prevents CLS)
-  const maxLength = Math.max(...words.map(w => w.length));
 
   useEffect(() => {
     const word = words[wordIndex];
@@ -116,8 +104,7 @@ function TypeWriter({ words }: { words: string[] }) {
   const currentWord = words[wordIndex].slice(0, charIndex);
 
   return (
-    // Fixed width container to prevent CLS from text width changes
-    <span className="inline-block" style={{ minWidth: `${maxLength}ch` }}>
+    <span className="text-[var(--jwus-accent)]">
       <GlitchText text={currentWord} isGlitching={isGlitching} />
       <motion.span
         animate={{ opacity: [1, 0] }}
@@ -160,26 +147,42 @@ function PixelBorder() {
 }
 
 function DataStream() {
-  // Static data stream - no JS animation for performance
-  const streams = ['10110100', '01001011', '11010010', '00101101', '10010110', '01101001'];
-  
+  const chars = '01';
+  const [streams, setStreams] = useState<string[]>([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStreams(prev => {
+        const newStreams = [...prev];
+        if (newStreams.length < 8) {
+          let stream = '';
+          for (let i = 0; i < 12; i++) {
+            stream += chars[Math.floor(Math.random() * chars.length)];
+          }
+          newStreams.push(stream);
+        } else {
+          newStreams.shift();
+        }
+        return newStreams;
+      });
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="absolute right-[40px] top-1/2 -translate-y-1/2 flex flex-col gap-[4px] text-[10px] text-[var(--jwus-accent)]/20 font-mono hidden lg:flex">
+    <div className="absolute right-[40px] top-1/2 -translate-y-1/2 flex flex-col gap-[4px] text-[10px] text-[var(--jwus-accent)]/30 font-mono hidden lg:flex">
       {streams.map((stream, i) => (
-        <div 
-          key={i} 
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
           className="tracking-widest"
-          style={{ animation: `blink ${2 + i * 0.5}s ease-in-out infinite` }}
         >
           {stream}
-        </div>
+        </motion.div>
       ))}
-      <style jsx>{`
-        @keyframes blink {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
     </div>
   );
 }
@@ -216,23 +219,23 @@ function StatusBar() {
 }
 
 export function PixelHero() {
+  const particles = Array.from({ length: 20 }, (_, i) => i);
+
   return (
-    <div 
-      className="relative min-h-[100vh] flex items-center justify-center overflow-hidden"
-      style={{ contain: 'layout style paint' }}
-    >
-      {/* Background elements - optimized CSS particles */}
-      <PixelParticles />
+    <div className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0">
+        {particles.map((i) => (
+          <PixelParticle key={i} delay={i * 0.2} />
+        ))}
+      </div>
       
       <ScanLine />
       <PixelBorder />
       <DataStream />
       
-      {/* Main content - fixed height to prevent CLS */}
-      <div 
-        className="relative z-10 text-center px-[24px]"
-        style={{ minHeight: '400px' }}
-      >
+      {/* Main content */}
+      <div className="relative z-10 text-center px-[24px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -243,14 +246,18 @@ export function PixelHero() {
           </p>
         </motion.div>
 
-        {/* LCP element - NO animation delay, render immediately */}
-        <h1 className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]">
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-[clamp(32px,8vw,64px)] text-[var(--jwus-ink)] leading-[1.1] mb-[24px]"
+        >
           <span className="block">QUIET POWER</span>
           <span className="block">PARTNER FOR</span>
-          <span className="block text-[var(--jwus-accent)]">
+          <span className="block">
             <TypeWriter words={WORDS} />
           </span>
-        </h1>
+        </motion.h1>
 
         <motion.p
           initial={{ opacity: 0 }}

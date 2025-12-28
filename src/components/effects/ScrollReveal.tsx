@@ -16,12 +16,11 @@ export function ScrollReveal({
   delay = 0,
   direction = 'up'
 }: ScrollRevealProps) {
-  // Use transform instead of layout-affecting properties for CLS
   const directionOffset = {
-    up: { y: 16, x: 0 },
-    down: { y: -16, x: 0 },
-    left: { y: 0, x: 16 },
-    right: { y: 0, x: -16 },
+    up: { y: 24, x: 0 },
+    down: { y: -24, x: 0 },
+    left: { y: 0, x: 24 },
+    right: { y: 0, x: -24 },
     none: { y: 0, x: 0 },
   }[direction];
 
@@ -30,21 +29,19 @@ export function ScrollReveal({
       className={cn(className)}
       initial={{ 
         opacity: 0, 
-        transform: `translate3d(${directionOffset.x}px, ${directionOffset.y}px, 0)`
+        y: directionOffset.y,
+        x: directionOffset.x 
       }}
       whileInView={{ 
         opacity: 1, 
-        transform: 'translate3d(0, 0, 0)'
+        y: 0,
+        x: 0
       }}
-      viewport={{ once: true, margin: '-50px' }}
+      viewport={{ once: true, margin: '-80px' }}
       transition={{ 
-        duration: 0.4,
+        duration: 0.6,
         delay,
-        ease: [0.25, 0.1, 0.25, 1]
-      }}
-      style={{ 
-        willChange: 'transform, opacity',
-        contain: 'layout'
+        ease: [0.2, 0.8, 0.2, 1]
       }}
     >
       {children}

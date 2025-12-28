@@ -238,11 +238,7 @@ export function AnimatedAssets({ assets }: AnimatedAssetsProps) {
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative py-[80px] bg-[var(--jwus-surface)] overflow-hidden"
-      style={{ contain: 'layout', minHeight: '500px' }}
-    >
+    <div ref={containerRef} className="relative py-[80px] bg-[var(--jwus-surface)] overflow-hidden">
       {/* Animated background */}
       <motion.div
         style={{ y: backgroundY }}

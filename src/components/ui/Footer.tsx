@@ -55,56 +55,63 @@ function GlitchLogo() {
 }
 
 function MatrixRain() {
-  // Pure CSS animation - no JS overhead
+  const columns = 20;
+  const [drops, setDrops] = useState<number[]>([]);
+
+  useEffect(() => {
+    setDrops(Array(columns).fill(0).map(() => Math.random() * -20));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDrops(prev => prev.map(drop => drop > 15 ? Math.random() * -10 : drop + 0.5));
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.05]">
-      {Array(8).fill(0).map((_, i) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.15]">
+      {drops.map((drop, i) => (
         <div
           key={i}
           className="absolute text-[var(--jwus-accent)] text-[10px] font-mono"
-          style={{ 
-            left: `${(i / 8) * 100}%`,
-            animation: `matrix-fall ${3 + i * 0.5}s linear infinite`,
-            animationDelay: `${i * 0.3}s`,
+          style={{
+            left: `${(i / columns) * 100}%`,
+            top: `${drop * 6}%`,
+            textShadow: '0 0 8px var(--jwus-accent)',
           }}
         >
-          {i % 2 === 0 ? '1' : '0'}
+          {Math.random() > 0.5 ? '1' : '0'}
         </div>
       ))}
-      <style jsx>{`
-        @keyframes matrix-fall {
-          0% { transform: translateY(-20px); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(100vh); opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
 
 function PixelWave() {
-  // Pure CSS animation - no JS overhead
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOffset(prev => (prev + 1) % 100);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-[30px] overflow-hidden pointer-events-none opacity-[0.15]">
-      <div 
-        className="flex gap-[3px]"
-        style={{ animation: 'wave-scroll 8s linear infinite' }}
-      >
-        {Array(30).fill(0).map((_, i) => (
-          <div 
-            key={i} 
-            className="w-[4px] bg-[var(--jwus-accent)]" 
-            style={{ height: `${Math.sin(i * 0.3) * 8 + 12}px` }}
+    <div className="absolute bottom-0 left-0 right-0 h-[40px] overflow-hidden pointer-events-none">
+      <div className="flex gap-[2px]" style={{ transform: `translateX(-${offset}px)` }}>
+        {Array(100).fill(0).map((_, i) => (
+          <div
+            key={i}
+            className="w-[4px] bg-[var(--jwus-accent)]"
+            style={{
+              height: `${Math.sin((i + offset) * 0.2) * 10 + 15}px`,
+              opacity: 0.1 + Math.sin((i + offset) * 0.1) * 0.1,
+            }}
           />
         ))}
       </div>
-      <style jsx>{`
-        @keyframes wave-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100px); }
-        }
-      `}</style>
     </div>
   );
 }
