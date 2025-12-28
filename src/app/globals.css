@@ -330,7 +330,32 @@ body {
 }
 
 /* ========================================
-   PIXEL CURSOR SYSTEM
+   PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+/* GPU acceleration for animated elements */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Reduce paint areas */
+* {
+  contain: layout style;
+}
+
+/* Optimize scroll performance */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ========================================
+   PIXEL CURSOR SYSTEM (Optimized)
    ======================================== */
 .pixel-cursor {
   position: fixed;
@@ -339,18 +364,15 @@ body {
   background: var(--jwus-accent);
   pointer-events: none;
   z-index: 9999;
+  /* GPU acceleration */
+  will-change: transform, opacity;
+  transform: translate3d(-100px, -100px, 0);
+  backface-visibility: hidden;
   /* Pixel crosshair shape */
   clip-path: polygon(
     40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%
   );
-  transition: width var(--dur-fast) var(--ease), height var(--dur-fast) var(--ease);
-}
-
-.pixel-cursor.hovering {
-  width: var(--cursor-size-hover);
-  height: var(--cursor-size-hover);
-  clip-path: none;
-  /* Square on hover */
+  /* No transitions - handled by RAF for smoothness */
 }
 
 .pixel-cursor-label {
@@ -363,6 +385,10 @@ body {
   pointer-events: none;
   z-index: 9999;
   white-space: nowrap;
+  /* GPU acceleration */
+  will-change: transform, opacity;
+  transform: translate3d(-100px, -100px, 0);
+  backface-visibility: hidden;
 }
 
 /* ========================================

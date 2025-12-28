@@ -3,38 +3,49 @@
 import { useEffect, useRef } from 'react';
 
 export function InteractiveGrid() {
-  const gridRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
+  const targetRef = useRef({ mx: 0.5, my: 0.5 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const mx = e.clientX / window.innerWidth;
-      const my = e.clientY / window.innerHeight;
-      document.documentElement.style.setProperty('--mx', mx.toString());
-      document.documentElement.style.setProperty('--my', my.toString());
-    };
-
     // Check for touch device or reduced motion
     const isTouchDevice = 'ontouchstart' in window;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (!isTouchDevice && !prefersReducedMotion) {
-      window.addEventListener('mousemove', handleMouseMove);
-    }
+    if (isTouchDevice || prefersReducedMotion) return;
+
+    // Throttled update using RAF
+    let lastUpdate = 0;
+    const updateCSS = () => {
+      const now = performance.now();
+      if (now - lastUpdate > 50) { // Max 20fps for CSS updates
+        document.documentElement.style.setProperty('--mx', targetRef.current.mx.toFixed(3));
+        document.documentElement.style.setProperty('--my', targetRef.current.my.toFixed(3));
+        lastUpdate = now;
+      }
+      rafRef.current = requestAnimationFrame(updateCSS);
+    };
+    rafRef.current = requestAnimationFrame(updateCSS);
+
+    // Passive listener just stores values
+    const handleMouseMove = (e: MouseEvent) => {
+      targetRef.current.mx = e.clientX / window.innerWidth;
+      targetRef.current.my = e.clientY / window.innerHeight;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
+      cancelAnimationFrame(rafRef.current);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
   return (
     <div 
-      ref={gridRef}
-      className="interactive-grid"
+      className="interactive-grid gpu-accelerated"
       aria-hidden="true"
     >
-      {/* Scanner light that follows mouse */}
       <div className="scanner-light" />
-      {/* Scanline animation */}
       <div className="scanlines" />
     </div>
   );

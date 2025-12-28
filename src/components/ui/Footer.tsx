@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
@@ -17,35 +17,35 @@ const GLITCH_CHARS = '█▓▒░!@#$%^&*';
 
 function GlitchLogo() {
   const [display, setDisplay] = useState(ASCII_LOGO);
-  const [isGlitching, setIsGlitching] = useState(false);
+  const glitchTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const glitchInterval = setInterval(() => {
-      setIsGlitching(true);
-      setTimeout(() => setIsGlitching(false), 200);
-    }, 5000);
+      // Quick glitch effect - only 3 frames
+      let frame = 0;
+      const doGlitch = () => {
+        if (frame < 3) {
+          setDisplay(
+            ASCII_LOGO.split('').map((char) =>
+              char !== ' ' && char !== '\n' && Math.random() > 0.8
+                ? GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
+                : char
+            ).join('')
+          );
+          frame++;
+          glitchTimeoutRef.current = setTimeout(doGlitch, 60);
+        } else {
+          setDisplay(ASCII_LOGO);
+        }
+      };
+      doGlitch();
+    }, 8000); // Less frequent
 
-    return () => clearInterval(glitchInterval);
+    return () => {
+      clearInterval(glitchInterval);
+      if (glitchTimeoutRef.current) clearTimeout(glitchTimeoutRef.current);
+    };
   }, []);
-
-  useEffect(() => {
-    if (!isGlitching) {
-      setDisplay(ASCII_LOGO);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setDisplay(
-        ASCII_LOGO.split('').map((char, i) =>
-          char !== ' ' && char !== '\n' && Math.random() > 0.8
-            ? GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
-            : char
-        ).join('')
-      );
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, [isGlitching]);
 
   return (
     <pre className="text-[6px] sm:text-[8px] md:text-[10px] leading-none text-[var(--jwus-accent)] font-mono select-none">
@@ -54,60 +54,71 @@ function GlitchLogo() {
   );
 }
 
+// Pure CSS Matrix Rain - no JS state updates
 function MatrixRain() {
-  const columns = 20;
-  const [drops, setDrops] = useState<number[]>([]);
-
-  useEffect(() => {
-    setDrops(Array(columns).fill(0).map(() => Math.random() * -20));
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDrops(prev => prev.map(drop => drop > 15 ? Math.random() * -10 : drop + 0.5));
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.15]">
-      {drops.map((drop, i) => (
-        <div
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08]">
+      <style jsx>{`
+        @keyframes matrix-fall {
+          0% { transform: translateY(-100%); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(400%); opacity: 0; }
+        }
+        .matrix-char {
+          position: absolute;
+          color: var(--jwus-accent);
+          font-size: 10px;
+          font-family: monospace;
+          animation: matrix-fall linear infinite;
+          will-change: transform;
+        }
+      `}</style>
+      {[...Array(10)].map((_, i) => (
+        <span
           key={i}
-          className="absolute text-[var(--jwus-accent)] text-[10px] font-mono"
+          className="matrix-char"
           style={{
-            left: `${(i / columns) * 100}%`,
-            top: `${drop * 6}%`,
-            textShadow: '0 0 8px var(--jwus-accent)',
+            left: `${i * 10 + 2}%`,
+            animationDuration: `${3 + i * 0.5}s`,
+            animationDelay: `${i * 0.3}s`,
           }}
         >
-          {Math.random() > 0.5 ? '1' : '0'}
-        </div>
+          {i % 2 === 0 ? '1' : '0'}
+        </span>
       ))}
     </div>
   );
 }
 
+// Pure CSS Pixel Wave - no JS state updates
 function PixelWave() {
-  const [offset, setOffset] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setOffset(prev => (prev + 1) % 100);
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-[40px] overflow-hidden pointer-events-none">
-      <div className="flex gap-[2px]" style={{ transform: `translateX(-${offset}px)` }}>
-        {Array(100).fill(0).map((_, i) => (
+    <div className="absolute bottom-0 left-0 right-0 h-[30px] overflow-hidden pointer-events-none opacity-[0.15]">
+      <style jsx>{`
+        @keyframes wave-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-200px); }
+        }
+        .wave-container {
+          display: flex;
+          gap: 4px;
+          animation: wave-scroll 4s linear infinite;
+          will-change: transform;
+        }
+        .wave-bar {
+          width: 4px;
+          background: var(--jwus-accent);
+        }
+      `}</style>
+      <div className="wave-container">
+        {[...Array(60)].map((_, i) => (
           <div
             key={i}
-            className="w-[4px] bg-[var(--jwus-accent)]"
+            className="wave-bar"
             style={{
-              height: `${Math.sin((i + offset) * 0.2) * 10 + 15}px`,
-              opacity: 0.1 + Math.sin((i + offset) * 0.1) * 0.1,
+              height: `${Math.sin(i * 0.3) * 8 + 12}px`,
+              opacity: 0.3 + Math.sin(i * 0.2) * 0.2,
             }}
           />
         ))}
@@ -117,52 +128,39 @@ function PixelWave() {
 }
 
 function Coordinates() {
-  const [coords, setCoords] = useState({ lat: '40.7128', lon: '-74.0060' });
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCoords({
-        lat: (40.7128 + (Math.random() - 0.5) * 0.0001).toFixed(4),
-        lon: (-74.0060 + (Math.random() - 0.5) * 0.0001).toFixed(4),
-      });
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Static coordinates - no animation needed
   return (
     <div className="flex items-center gap-[8px] text-[9px] font-mono text-[var(--jwus-deep)]">
       <span className="w-[6px] h-[6px] bg-[var(--jwus-success)] animate-pulse" />
-      <span>LAT {coords.lat}</span>
-      <span>LON {coords.lon}</span>
+      <span>LAT 40.7128</span>
+      <span>LON -74.0060</span>
     </div>
   );
 }
 
-function TypewriterText({ text, delay = 0 }: { text: string; delay?: number }) {
+// Simpler typewriter - complete after animation
+function TypewriterText({ text }: { text: string }) {
   const [displayed, setDisplayed] = useState('');
-  const [started, setStarted] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    const startTimeout = setTimeout(() => setStarted(true), delay);
-    return () => clearTimeout(startTimeout);
-  }, [delay]);
-
-  useEffect(() => {
-    if (!started) return;
+    if (done) return;
     if (displayed.length < text.length) {
       const timeout = setTimeout(() => {
         setDisplayed(text.slice(0, displayed.length + 1));
-      }, 50);
+      }, 40);
       return () => clearTimeout(timeout);
+    } else {
+      setDone(true);
     }
-  }, [displayed, text, started]);
+  }, [displayed, text, done]);
+
+  if (done) return <span>{text}</span>;
 
   return (
     <span>
       {displayed}
-      {displayed.length < text.length && (
-        <span className="inline-block w-[6px] h-[12px] bg-[var(--jwus-accent)] animate-pulse ml-[2px]" />
-      )}
+      <span className="inline-block w-[6px] h-[12px] bg-[var(--jwus-accent)] animate-pulse ml-[2px]" />
     </span>
   );
 }
