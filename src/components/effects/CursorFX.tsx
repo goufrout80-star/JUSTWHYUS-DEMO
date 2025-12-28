@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 const CURSOR_SIZE = 8;
 const CURSOR_SIZE_HOVER = 12;
@@ -8,108 +8,89 @@ const CURSOR_SIZE_HOVER = 12;
 export function CursorFX() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({
-    x: 0,
-    y: 0,
-    isVisible: false,
-    isHovering: false,
-    label: '',
-  });
-  const rafRef = useRef<number>(0);
-  const isDesktopRef = useRef(false);
+  const mousePos = useRef({ x: -100, y: -100 });
+  const isHovering = useRef(false);
+  const labelText = useRef('');
+  const isVisible = useRef(false);
 
-  const updateCursor = useCallback(() => {
+  useEffect(() => {
     const cursor = cursorRef.current;
     const label = labelRef.current;
-    const state = stateRef.current;
+    if (!cursor || !label) return;
 
-    if (cursor) {
-      cursor.style.transform = `translate3d(${state.x}px, ${state.y}px, 0) translate(-50%, -50%)`;
-      cursor.style.opacity = state.isVisible ? '1' : '0';
-      cursor.style.width = `${state.isHovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE}px`;
-      cursor.style.height = `${state.isHovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE}px`;
-      cursor.style.clipPath = state.isHovering 
-        ? 'none' 
-        : 'polygon(40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%)';
-    }
-
-    if (label) {
-      label.style.transform = `translate3d(${state.x + 16}px, ${state.y + 16}px, 0)`;
-      label.style.opacity = state.isVisible && state.isHovering && state.label ? '1' : '0';
-      if (state.label) label.textContent = state.label;
-    }
-  }, []);
-
-  useEffect(() => {
-    const checkDesktop = () => {
-      const isFinePointer = window.matchMedia('(pointer: fine)').matches;
-      const noReducedMotion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      isDesktopRef.current = isFinePointer && noReducedMotion;
-      
-      if (cursorRef.current) {
-        cursorRef.current.style.display = isDesktopRef.current ? 'block' : 'none';
-      }
-      if (labelRef.current) {
-        labelRef.current.style.display = isDesktopRef.current ? 'block' : 'none';
-      }
-    };
+    // Check if desktop with fine pointer
+    const isFinePointer = window.matchMedia('(pointer: fine)').matches;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
-    checkDesktop();
-    window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
-  }, []);
+    if (!isFinePointer || prefersReducedMotion) {
+      cursor.style.display = 'none';
+      label.style.display = 'none';
+      return;
+    }
 
-  useEffect(() => {
-    let ticking = false;
+    // Direct DOM manipulation for 60fps - no React state updates
+    const updateDOM = () => {
+      const { x, y } = mousePos.current;
+      const hovering = isHovering.current;
+      const visible = isVisible.current;
+      
+      // Use left/top with transform for pixel-perfect positioning
+      cursor.style.left = x + 'px';
+      cursor.style.top = y + 'px';
+      cursor.style.opacity = visible ? '1' : '0';
+      cursor.style.width = (hovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE) + 'px';
+      cursor.style.height = (hovering ? CURSOR_SIZE_HOVER : CURSOR_SIZE) + 'px';
+      
+      label.style.left = (x + 16) + 'px';
+      label.style.top = (y + 16) + 'px';
+      label.style.opacity = visible && hovering && labelText.current ? '1' : '0';
+    };
 
+    // Mouse move - update position immediately, no throttling
     const onMouseMove = (e: MouseEvent) => {
-      stateRef.current.x = e.clientX;
-      stateRef.current.y = e.clientY;
-      stateRef.current.isVisible = true;
-
-      if (!ticking) {
-        rafRef.current = requestAnimationFrame(() => {
-          updateCursor();
-          ticking = false;
-        });
-        ticking = true;
-      }
+      mousePos.current.x = e.clientX;
+      mousePos.current.y = e.clientY;
+      isVisible.current = true;
+      updateDOM();
     };
 
     const onMouseLeave = () => {
-      stateRef.current.isVisible = false;
-      updateCursor();
+      isVisible.current = false;
+      updateDOM();
     };
 
     const onMouseEnter = () => {
-      stateRef.current.isVisible = true;
-      updateCursor();
+      isVisible.current = true;
+      updateDOM();
     };
 
     const onMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const interactive = target.closest('a, button, [role="button"], input, textarea, select, [data-cursor-hover]');
-      stateRef.current.isHovering = !!interactive;
+      isHovering.current = !!interactive;
       
       if (interactive) {
         const customLabel = interactive.getAttribute('data-cursor-label');
         const tagName = interactive.tagName.toLowerCase();
         if (customLabel) {
-          stateRef.current.label = customLabel;
+          labelText.current = customLabel;
         } else if (tagName === 'a') {
-          stateRef.current.label = 'LINK';
+          labelText.current = 'LINK';
         } else if (tagName === 'button' || interactive.getAttribute('role') === 'button') {
-          stateRef.current.label = 'CLICK';
+          labelText.current = 'CLICK';
         } else if (tagName === 'input' || tagName === 'textarea') {
-          stateRef.current.label = 'TYPE';
+          labelText.current = 'TYPE';
         } else {
-          stateRef.current.label = 'SELECT';
+          labelText.current = 'SELECT';
         }
+        label.textContent = labelText.current;
       } else {
-        stateRef.current.label = '';
+        labelText.current = '';
       }
+      updateDOM();
     };
 
+    // Add listeners with passive for better performance
     document.addEventListener('mousemove', onMouseMove, { passive: true });
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
@@ -120,28 +101,19 @@ export function CursorFX() {
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
       document.removeEventListener('mouseover', onMouseOver);
-      cancelAnimationFrame(rafRef.current);
     };
-  }, [updateCursor]);
+  }, []);
 
   return (
     <>
       <div
         ref={cursorRef}
         className="pixel-cursor"
-        style={{ 
-          willChange: 'transform, opacity',
-          contain: 'layout style',
-        }}
         aria-hidden="true"
       />
       <div
         ref={labelRef}
         className="pixel-cursor-label"
-        style={{ 
-          willChange: 'transform, opacity',
-          contain: 'layout style',
-        }}
         aria-hidden="true"
       />
     </>

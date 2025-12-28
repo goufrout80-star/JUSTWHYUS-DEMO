@@ -346,16 +346,21 @@ section {
    ======================================== */
 .pixel-cursor {
   position: fixed;
+  top: 0;
+  left: 0;
   width: var(--cursor-size);
   height: var(--cursor-size);
   background: var(--jwus-accent);
   pointer-events: none;
   z-index: 9999;
+  /* GPU acceleration for 60fps */
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+  contain: layout style;
   /* Pixel crosshair shape */
   clip-path: polygon(
     40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%
   );
-  transition: width var(--dur-fast) var(--ease), height var(--dur-fast) var(--ease);
 }
 
 .pixel-cursor.hovering {
@@ -367,6 +372,8 @@ section {
 
 .pixel-cursor-label {
   position: fixed;
+  top: 0;
+  left: 0;
   background: var(--jwus-surface);
   border: 1px solid var(--jwus-accent);
   color: var(--jwus-accent);
@@ -375,6 +382,9 @@ section {
   pointer-events: none;
   z-index: 9999;
   white-space: nowrap;
+  /* GPU acceleration for 60fps */
+  will-change: left, top;
+  contain: layout style;
 }
 
 /* ========================================
