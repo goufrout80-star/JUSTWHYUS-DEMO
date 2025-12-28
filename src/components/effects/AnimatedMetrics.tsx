@@ -152,7 +152,7 @@ interface AnimatedMetricsProps {
 
 export function AnimatedMetrics({ metrics }: AnimatedMetricsProps) {
   return (
-    <div className="relative">
+    <div className="relative" style={{ contain: 'layout', minHeight: '180px' }}>
       {/* Background grid pattern */}
       <div 
         className="absolute inset-0 opacity-[0.03]"
@@ -162,6 +162,7 @@ export function AnimatedMetrics({ metrics }: AnimatedMetricsProps) {
             linear-gradient(90deg, var(--jwus-accent) 1px, transparent 1px)
           `,
           backgroundSize: '20px 20px',
+          contain: 'strict',
         }}
       />
       

@@ -153,11 +153,15 @@ export function AnimatedWorkSection({ works, title = 'Selected Work', subtitle =
     offset: ['start end', 'end start']
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const springY = useSpring(y, { stiffness: 100, damping: 30 });
+  const y = useTransform(scrollYProgress, [0, 1], [50, -50]); // Reduced for smoother performance
+  const springY = useSpring(y, { stiffness: 50, damping: 20 }); // Lower stiffness for smoother
 
   return (
-    <div ref={containerRef} className="relative py-[80px] overflow-hidden">
+    <div 
+      ref={containerRef} 
+      className="relative py-[80px] overflow-hidden"
+      style={{ contain: 'layout', minHeight: '600px' }}
+    >
       {/* Animated background element */}
       <motion.div
         style={{ y: springY }}
